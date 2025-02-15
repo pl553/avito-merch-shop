@@ -1,14 +1,12 @@
 package cmd
 
 import (
-	"context"
-	"fmt"
 	"log"
+	"merchshop/internal/server"
 	"os"
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/cobra"
 )
 
@@ -41,15 +39,6 @@ func Execute() {
 }
 
 func Run(cmd *cobra.Command, args []string) {
-	fmt.Println(migrationsDir)
-	fmt.Println(dbSource)
-	fmt.Println(port)
-
-	ctx := context.TODO()
-
-	pool, err := pgxpool.New(ctx, dbSource)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer pool.Close()
+	s := server.NewServer("0.0.0.0:" + port)
+	log.Fatal(s.ListenAndServe())
 }
