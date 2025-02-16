@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS coin_transfers;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS purchases;

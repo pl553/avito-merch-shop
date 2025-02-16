@@ -1,10 +1,14 @@
 package cmd
 
 import (
+	"context"
+	"errors"
 	"log"
+	"merchshop/internal/repository"
 	"merchshop/internal/server"
 	"os"
 
+	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/spf13/cobra"
@@ -39,6 +43,18 @@ func Execute() {
 }
 
 func Run(cmd *cobra.Command, args []string) {
-	s := server.NewServer("0.0.0.0:" + port)
+	m, err := migrate.New("file://"+migrationsDir, dbSource)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		log.Fatal(err)
+	}
+
+	r, err := repository.NewPgMerchRepository(context.TODO(), dbSource)
+	if err != nil {
+		log.Fatal(err)
+	}
+	s := server.NewServer("0.0.0.0:"+port, r)
 	log.Fatal(s.ListenAndServe())
 }
